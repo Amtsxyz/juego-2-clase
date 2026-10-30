@@ -8,7 +8,7 @@ Exercises
 4. Change the snake to respond to mouse clicks.
 """
 
-# importa las herramientas para generar posiciones aleatorias y controlar el juego
+# importa las herramientas para generar posiciones que sean aleatorias y controlar el juego
 from random import randrange, sample
 from turtle import *
 
@@ -44,13 +44,13 @@ def move_food():
     Mueve la comida a una nueva posición aleatoria.
     """
 
-    # genera una coordenada X válida dentro del tablero
+    # Genera una coordenada X válida dentro del tablero
     food.x = randrange(-15, 15) * 10
 
-    # genera una coordenada Y válida dentro del tablero
+    # Genera una coordenada Y válida dentro del tablero
     food.y = randrange(-15, 15) * 10
 
-    # programa el siguiente movimiento de la comida
+    # Programa el siguiente movimiento de la comida
     ontimer(move_food, 2000)
     
 def move():

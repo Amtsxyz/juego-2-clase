@@ -1,119 +1,93 @@
-```python
-"""cannon, hitting targets with projectiles
+"""Snake, classic arcade game.
 
-exercises
-1. keep score by counting target hits
-2. vary the effect of gravity
-3. apply gravity to the targets
-4. change the speed of the ball
+Exercises
+
+1. How do you make the snake faster or slower?
+2. How can you make the snake go around the edges?
+3. How would you move the food?
+4. Change the snake to respond to mouse clicks.
 """
 
-# se importan las herramientas que se van a usar
+# importa las herramientas para generar posiciones aleatorias y controlar el juego
 from random import randrange
 from turtle import *
-from freegames import vector
 
-# se crean la pelota, su velocidad y la lista de objetivos
-ball = vector(-200, -200)
-speed = vector(0, 0)
-targets = []
+# importa las funciones para dibujar cuadrados y manejar posiciones
+from freegames import square, vector
 
-
-def tap(x, y):
-    """responder al clic de la pantalla"""
-    # si la pelota no está en la pantalla se puede disparar
-    if not inside(ball):
-        ball.x = -200
-        ball.y = -200
-
-        # se calcula la velocidad del disparo dependiendo del clic
-        speed.x = (x + 200) / 25
-        speed.y = (y + 200) / 25
+# establece la posición inicial de la comida, la serpiente y su dirección
+food = vector(0, 0)
+snake = [vector(10, 0)]
+aim = vector(0, -10)
 
 
-def inside(xy):
-    """revisar si un objeto está dentro de la pantalla"""
-    # se comprueba que sus coordenadas estén dentro de los límites
-    return -200 < xy.x < 200 and -200 < xy.y < 200
+def change(x, y):
+    """Change snake direction."""
+    # cambia la dirección en la que se va a mover la serpiente
+    aim.x = x
+    aim.y = y
 
 
-def draw():
-    """dibujar la pelota y los objetivos"""
-    # se limpia la pantalla para volver a dibujar todo
-    clear()
-
-    # se dibujan todos los objetivos de color azul
-    for target in targets:
-        goto(target.x, target.y)
-        dot(20, 'blue')
-
-    # se dibuja la pelota roja si sigue dentro de la pantalla
-    if inside(ball):
-        goto(ball.x, ball.y)
-        dot(6, 'red')
-
-    # se actualiza la pantalla para mostrar los cambios
-    update()
+def inside(head):
+    """Return True if head inside boundaries."""
+    # revisa que la cabeza de la serpiente siga dentro de los límites del juego
+    return -200 < head.x < 190 and -200 < head.y < 190
 
 
 def move():
-    """mover la pelota y los objetivos"""
-    # de vez en cuando aparece un nuevo objetivo en la pantalla
-    if randrange(40) == 0:
-        y = randrange(-150, 150)
-        target = vector(200, y)
-        targets.append(target)
+    """Move snake forward one segment."""
+    # copia la posición de la cabeza y la mueve en la dirección indicada
+    head = snake[-1].copy()
+    head.move(aim)
 
-    # los objetivos se mueven poco a poco hacia la izquierda
-    for target in targets:
-        target.x -= 0.5
+    # revisa si la serpiente salió del área o chocó con su propio cuerpo
+    if not inside(head) or head in snake:
+        square(head.x, head.y, 9, 'red')
+        update()
+        return
 
-    # si la pelota está en pantalla se aplica la gravedad
-    if inside(ball):
-        speed.y -= 0.35
+    # agrega la nueva posición de la cabeza a la serpiente
+    snake.append(head)
 
-        # se mueve la pelota según su velocidad
-        ball.move(speed)
+    # revisa si la serpiente comió la comida
+    if head == food:
+        # muestra el tamaño de la serpiente y genera una nueva comida
+        print('Snake:', len(snake))
+        food.x = randrange(-15, 15) * 10
+        food.y = randrange(-15, 15) * 10
+    else:
+        # elimina la última parte para mantener el mismo tamaño
+        snake.pop(0)
 
-    # se hace una copia de los objetivos para revisarlos
-    dupe = targets.copy()
-    targets.clear()
+    # limpia la pantalla para volver a dibujar todo
+    clear()
 
-    # se conservan los objetivos que no han sido golpeados
-    for target in dupe:
-        if abs(target - ball) > 13:
-            targets.append(target)
+    # dibuja cada parte del cuerpo de la serpiente en color negro
+    for body in snake:
+        square(body.x, body.y, 9, 'black')
 
-    # se dibuja otra vez el juego
-    draw()
+    # dibuja la comida en color verde y actualiza la pantalla
+    square(food.x, food.y, 9, 'green')
+    update()
 
-    # si algún objetivo sale de la pantalla se detiene el movimiento
-    for target in targets:
-        if not inside(target):
-            return
-
-    # se vuelve a ejecutar move después de 50 milisegundos
-    ontimer(move, 50)
+    # vuelve a ejecutar el movimiento después de 100 milisegundos
+    ontimer(move, 100)
 
 
-# se configura el tamaño y la posición de la ventana
+# configura el tamaño y la posición de la ventana del juego
 setup(420, 420, 370, 0)
 
-# se oculta el cursor de la tortuga
+# oculta la tortuga y evita que la pantalla se actualice automáticamente
 hideturtle()
-
-# se levanta el lápiz para que no dibuje al moverse
-up()
-
-# se desactiva la actualización automática de la pantalla
 tracer(False)
 
-# se conecta el clic del mouse con la función tap
-onscreenclick(tap)
+# activa los controles del teclado para mover la serpiente
+listen()
+onkey(lambda: change(10, 0), 'Right')
+onkey(lambda: change(-10, 0), 'Left')
+onkey(lambda: change(0, 10), 'Up')
+onkey(lambda: change(0, -10), 'Down')
 
-# se inicia el movimiento del juego
+# inicia el movimiento de la serpiente y mantiene abierta la ventana
 move()
-
-# se mantiene abierta la ventana
 done()
-```

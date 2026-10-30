@@ -1,70 +1,119 @@
-"""Snake, classic arcade game.
+```python
+"""cannon, hitting targets with projectiles
 
-Exercises
-
-1. How do you make the snake faster or slower?
-2. How can you make the snake go around the edges?
-3. How would you move the food?
-4. Change the snake to respond to mouse clicks.
+exercises
+1. keep score by counting target hits
+2. vary the effect of gravity
+3. apply gravity to the targets
+4. change the speed of the ball
 """
 
+# se importan las herramientas que se van a usar
 from random import randrange
 from turtle import *
+from freegames import vector
 
-from freegames import square, vector
-
-food = vector(0, 0)
-snake = [vector(10, 0)]
-aim = vector(0, -10)
-
-
-def change(x, y):
-    """Change snake direction."""
-    aim.x = x
-    aim.y = y
+# se crean la pelota, su velocidad y la lista de objetivos
+ball = vector(-200, -200)
+speed = vector(0, 0)
+targets = []
 
 
-def inside(head):
-    """Return True if head inside boundaries."""
-    return -200 < head.x < 190 and -200 < head.y < 190
+def tap(x, y):
+    """responder al clic de la pantalla"""
+    # si la pelota no está en la pantalla se puede disparar
+    if not inside(ball):
+        ball.x = -200
+        ball.y = -200
+
+        # se calcula la velocidad del disparo dependiendo del clic
+        speed.x = (x + 200) / 25
+        speed.y = (y + 200) / 25
+
+
+def inside(xy):
+    """revisar si un objeto está dentro de la pantalla"""
+    # se comprueba que sus coordenadas estén dentro de los límites
+    return -200 < xy.x < 200 and -200 < xy.y < 200
+
+
+def draw():
+    """dibujar la pelota y los objetivos"""
+    # se limpia la pantalla para volver a dibujar todo
+    clear()
+
+    # se dibujan todos los objetivos de color azul
+    for target in targets:
+        goto(target.x, target.y)
+        dot(20, 'blue')
+
+    # se dibuja la pelota roja si sigue dentro de la pantalla
+    if inside(ball):
+        goto(ball.x, ball.y)
+        dot(6, 'red')
+
+    # se actualiza la pantalla para mostrar los cambios
+    update()
 
 
 def move():
-    """Move snake forward one segment."""
-    head = snake[-1].copy()
-    head.move(aim)
+    """mover la pelota y los objetivos"""
+    # de vez en cuando aparece un nuevo objetivo en la pantalla
+    if randrange(40) == 0:
+        y = randrange(-150, 150)
+        target = vector(200, y)
+        targets.append(target)
 
-    if not inside(head) or head in snake:
-        square(head.x, head.y, 9, 'red')
-        update()
-        return
+    # los objetivos se mueven poco a poco hacia la izquierda
+    for target in targets:
+        target.x -= 0.5
 
-    snake.append(head)
+    # si la pelota está en pantalla se aplica la gravedad
+    if inside(ball):
+        speed.y -= 0.35
 
-    if head == food:
-        print('Snake:', len(snake))
-        food.x = randrange(-15, 15) * 10
-        food.y = randrange(-15, 15) * 10
-    else:
-        snake.pop(0)
+        # se mueve la pelota según su velocidad
+        ball.move(speed)
 
-    clear()
+    # se hace una copia de los objetivos para revisarlos
+    dupe = targets.copy()
+    targets.clear()
 
-    for body in snake:
-        square(body.x, body.y, 9, 'black')
+    # se conservan los objetivos que no han sido golpeados
+    for target in dupe:
+        if abs(target - ball) > 13:
+            targets.append(target)
 
-    square(food.x, food.y, 9, 'green')
-    update()
-    ontimer(move, 100)
+    # se dibuja otra vez el juego
+    draw()
+
+    # si algún objetivo sale de la pantalla se detiene el movimiento
+    for target in targets:
+        if not inside(target):
+            return
+
+    # se vuelve a ejecutar move después de 50 milisegundos
+    ontimer(move, 50)
 
 
+# se configura el tamaño y la posición de la ventana
 setup(420, 420, 370, 0)
+
+# se oculta el cursor de la tortuga
 hideturtle()
+
+# se levanta el lápiz para que no dibuje al moverse
+up()
+
+# se desactiva la actualización automática de la pantalla
 tracer(False)
-listen()
-onkey(lambda: change(10, 0), 'Right')
-onkey(lambda: change(-10, 0), 'Left')
-onkey(lambda: change(0, 10), 'Up')
-onkey(lambda: change(0, -10), 'Down')
+
+# se conecta el clic del mouse con la función tap
+onscreenclick(tap)
+
+# se inicia el movimiento del juego
 move()
+
+# se mantiene abierta la ventana
 done()
+```

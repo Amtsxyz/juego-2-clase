@@ -39,7 +39,20 @@ def inside(head):
     # revisa que la cabeza de la serpiente siga dentro de los límites del juego
     return -200 < head.x < 190 and -200 < head.y < 190
 
+def move_food():
+    """
+    Mueve la comida a una nueva posición aleatoria.
+    """
 
+    # genera una coordenada X válida dentro del tablero
+    food.x = randrange(-15, 15) * 10
+
+    # genera una coordenada Y válida dentro del tablero
+    food.y = randrange(-15, 15) * 10
+
+    # programa el siguiente movimiento de la comida
+    ontimer(move_food, 2000)
+    
 def move():
     """Move snake forward one segment."""
     # copia la posición de la cabeza y la mueve en la dirección indicada
@@ -96,4 +109,6 @@ onkey(lambda: change(0, -10), 'Down')
 
 # inicia el movimiento de la serpiente y mantiene abierta la ventana
 move()
+# inicia el movimiento periódico de la comida
+move_food()
 done()

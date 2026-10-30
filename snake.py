@@ -9,7 +9,7 @@ Exercises
 """
 
 # importa las herramientas para generar posiciones que sean aleatorias y controlar el juego
-from random import randrange, sample
+from random import randrange, sample, choice
 from turtle import *
 
 # importa las funciones para dibujar cuadrados y manejar posiciones
@@ -39,20 +39,29 @@ def inside(head):
     # revisa que la cabeza de la serpiente siga dentro de los límites del juego
     return -200 < head.x < 190 and -200 < head.y < 190
 
+
 def move_food():
     """
-    Mueve la comida a una nueva posición aleatoria.
+    Mueve la comida un paso aleatorio sin salir del tablero.
     """
 
-    # Genera una coordenada X válida dentro del tablero
-    food.x = randrange(-15, 15) * 10
+    # elige una dirección aleatoria para mover la comida
+    directions = [(10, 0), (-10, 0), (0, 10), (0, -10)]
+    dx, dy = choice(directions)
 
-    # Genera una coordenada Y válida dentro del tablero
-    food.y = randrange(-15, 15) * 10
+    # calcula la nueva posición de la comida
+    new_x = food.x + dx
+    new_y = food.y + dy
 
-    # Programa el siguiente movimiento de la comida
+    # revisa que la comida siga dentro del tablero antes de moverla
+    if inside(vector(new_x, new_y)):
+        food.x = new_x
+        food.y = new_y
+
+    # programa el siguiente movimiento de la comida
     ontimer(move_food, 2000)
-    
+
+
 def move():
     """Move snake forward one segment."""
     # copia la posición de la cabeza y la mueve en la dirección indicada
@@ -109,6 +118,8 @@ onkey(lambda: change(0, -10), 'Down')
 
 # inicia el movimiento de la serpiente y mantiene abierta la ventana
 move()
+
 # inicia el movimiento periódico de la comida
 move_food()
+
 done()

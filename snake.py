@@ -9,11 +9,17 @@ Exercises
 """
 
 # importa las herramientas para generar posiciones aleatorias y controlar el juego
-from random import randrange
+from random import randrange, sample
 from turtle import *
 
 # importa las funciones para dibujar cuadrados y manejar posiciones
 from freegames import square, vector
+
+# establece los 5 colores que puede usar el juego, sin incluir el rojo
+colors = ['blue', 'green', 'purple', 'orange', 'pink']
+
+# elige dos colores diferentes al azar para la serpiente y la comida
+snake_color, food_color = sample(colors, 2)
 
 # establece la posición inicial de la comida, la serpiente y su dirección
 food = vector(0, 0)
@@ -62,12 +68,12 @@ def move():
     # limpia la pantalla para volver a dibujar todo
     clear()
 
-    # dibuja cada parte del cuerpo de la serpiente en color negro
+    # dibuja cada parte del cuerpo de la serpiente con su color aleatorio
     for body in snake:
-        square(body.x, body.y, 9, 'black')
+        square(body.x, body.y, 9, snake_color)
 
-    # dibuja la comida en color verde y actualiza la pantalla
-    square(food.x, food.y, 9, 'green')
+    # dibuja la comida con un color diferente al de la serpiente
+    square(food.x, food.y, 9, food_color)
     update()
 
     # vuelve a ejecutar el movimiento después de 100 milisegundos
